@@ -11,10 +11,11 @@ const PollWrapper = styled.div`
   flex-direction: column;
   width: 340px;
   background: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 5px;
   padding: 25px;
+  margin: 30px 0;
 
   .votesCount {
     margin-top: 20px;
