@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { QandAsDocument, QandA, Answer } from '../types';
-import { getRandomNumber, getTotal, getPercentage } from '../utils';
+import { getTotal, getPercentage, getRandomQuestion } from '../utils';
 type Props = {
   qandas: QandAsDocument /* q and a's -- questions and answers document */;
 };
@@ -16,6 +16,11 @@ const PollWrapper = styled.div`
   border-radius: 5px;
   padding: 25px;
 
+  .votesCount {
+    margin-top: 20px;
+    color: #b7b5b5;
+    font-size: 0.8rem;
+  }
   /* Targeting Mobile   */
   @media (max-width: 425px) {
     width: 250px;
@@ -72,13 +77,15 @@ const ProgressContainer = styled.div<{ width: number; max: boolean }>`
 
 export default function Poll({ qandas }: Props) {
   const [currentQn, setCurrentQn] = React.useState<QandA>();
-  const [selectedAnswer, setSelectedAnswer] = React.useState<string | null>();
+  const [selectedAnswer, setSelectedAnswer] = React.useState<
+    string | undefined
+  >();
   const [currentTotal, setCurrentTotal] = React.useState<number | 0>(0);
   const [max, setMax] = React.useState<number | 0>(0);
 
   React.useEffect(() => {
-    const randomInt = getRandomNumber(3);
-    const question = qandas.questions[randomInt];
+    const question = getRandomQuestion(qandas.questions);
+
     setCurrentTotal(getTotal(question.answers));
     setMax(Math.max(...question.answers.map((ans) => ans.votes)));
     setCurrentQn(question);
@@ -94,12 +101,16 @@ export default function Poll({ qandas }: Props) {
               key={answer.text}
               role="button"
               onClick={() => setSelectedAnswer(answer.text)}
-              max={answer.votes === max}
+              max={
+                selectedAnswer ? (answer.votes === max ? true : false) : false
+              }
             >
-              <ProgressContainer
-                width={getPercentage(currentTotal, answer.votes)}
-                max={answer.votes === max}
-              />
+              {selectedAnswer && (
+                <ProgressContainer
+                  width={getPercentage(currentTotal, answer.votes)}
+                  max={answer.votes === max}
+                />
+              )}
 
               <span>
                 {answer.text}{' '}
@@ -109,10 +120,15 @@ export default function Poll({ qandas }: Props) {
                   ' '
                 )}
               </span>
-              <span>{getPercentage(currentTotal, answer.votes)}%</span>
+              {selectedAnswer && (
+                <span>{getPercentage(currentTotal, answer.votes)}%</span>
+              )}
             </VoteItem>
           ))}
       </VotesWrapper>
+      <span className="votesCount">
+        {selectedAnswer ? currentTotal + 1 : currentTotal} votes
+      </span>
     </PollWrapper>
   );
 }
